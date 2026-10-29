@@ -1,0 +1,815 @@
+<title>Jelajah Mangrove Digital</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#2d7a43">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+/* Konsep: panel kertas di atas latar sungai bakau; peta berupa sungai berkelok dengan lima pos level berwarna. */
+:root{
+  --ink:#14301f; --ink-soft:#3d5a48; --paper:#f8fcf5; --mint:#e4f3e1; --line:#b9d6b5;
+  --leaf:#2d7a43; --leaf-dk:#1c5a30; --water:#2aa1a6; --water-dk:#136b73; --sky:#d4efee;
+  --wood:#8a5726; --wood-dk:#5a3513; --wood-lt:#cf9a55; --gold:#ffd666;
+  --sun:#f28c1b; --sun-dk:#b85f05; --on-sun:#2a1500;
+  --ok:#1b7f45; --ok-bg:#dcf2e2; --bad:#b83a2c; --bad-bg:#fbe3df; --warn-bg:#fff2cf;
+  --focus:#0b3d91; --nd:clamp(46px,7vw,68px);
+  --f-display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+html.hc{--ink:#000;--ink-soft:#000;--paper:#fff;--mint:#fff;--line:#000;--leaf:#00531f;--leaf-dk:#003a15;--sky:#fff;--sun:#ffd400;--sun-dk:#000;--on-sun:#000;--wood:#000;--wood-dk:#000;--wood-lt:#000;--ok:#005a26;--ok-bg:#fff;--bad:#a00000;--bad-bg:#fff;--warn-bg:#fff;--focus:#0000ee;--water:#00535a;--water-dk:#000}
+html{font-size:16px}
+html.big{font-size:20px}
+body{margin:0;position:relative;color:var(--ink);font:400 1rem/1.55 var(--f-body);
+  background-color:var(--sky);background-image:linear-gradient(#d4efee 0,#bfe6e2 40%,#a6dbd7 100%);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 48px;min-height:100%}
+html.hc body{background-image:none}
+html.dys body,html.dys button,html.dys textarea,html.dys input{font-family:'Lexend','Atkinson Hyperlegible',sans-serif;letter-spacing:.04em;word-spacing:.14em;line-height:1.85}
+.band{position:absolute;left:0;right:0;top:0;height:190px;overflow:hidden;z-index:0;pointer-events:none}
+.band svg{width:100%;height:100%;display:block}
+html.hc .band{display:none}
+.wrap{position:relative;z-index:1;max-width:1000px;margin-inline:auto}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* kepala halaman */
+.top{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sign{background:linear-gradient(var(--wood-lt),var(--wood));border:3px solid var(--wood-dk);border-radius:14px;color:var(--gold);
+  font:800 clamp(1.15rem,3.6vw,1.6rem)/1.15 var(--f-display);padding:6px 18px 4px;text-shadow:0 2px 0 var(--wood-dk);box-shadow:0 4px 0 rgba(0,0,0,.18);text-wrap:balance}
+.sign.sm{font-size:1.25rem;padding:4px 16px 2px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700;font-size:.95rem;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+button.pill{cursor:pointer}
+button.pill:hover{border-color:var(--leaf)}
+
+/* tombol */
+.btn{font:800 1.05rem/1.2 var(--f-display);min-height:48px;padding:8px 22px;border-radius:14px;border:0;border-bottom:4px solid var(--sun-dk);background:var(--sun);color:var(--on-sun);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn:hover:not(:disabled){filter:brightness(1.06)}
+.btn:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px}
+.btn.green{background:var(--leaf);border-bottom-color:var(--leaf-dk);color:#fff}
+.btn.red{background:var(--bad);border-bottom-color:#7c2217;color:#fff}
+.btn.ghost{background:var(--paper);color:var(--leaf-dk);border:2px solid var(--leaf);border-bottom-width:4px}
+.btn.big{font-size:1.35rem;min-height:58px;padding:10px 34px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.end{justify-content:flex-end}
+
+/* panel */
+.panel{background:var(--paper);border:3px solid var(--line);border-radius:24px;padding:clamp(14px,3vw,26px);box-shadow:0 8px 0 rgba(20,48,31,.10);display:flex;flex-direction:column;gap:16px}
+.lvl-head{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.chip{background:var(--leaf-dk);color:#fff;border-radius:999px;padding:4px 16px 2px;font:800 1rem var(--f-display)}
+.lvl-title{font:800 clamp(1.25rem,3.4vw,1.7rem)/1.15 var(--f-display);color:var(--leaf-dk);text-wrap:balance}
+.instr{background:var(--warn-bg);border:2px solid var(--wood-lt);border-radius:14px;padding:10px 16px;font-weight:700}
+.prog{color:var(--ink-soft)}
+.note{font-size:.92rem;color:var(--ink-soft)}
+.hint{min-height:1.5em;color:var(--ink-soft);font-size:.95rem}
+
+/* pembuka */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:22px;align-items:stretch}
+.hero-left{display:flex;flex-direction:column;gap:16px;justify-content:center;min-width:0}
+.kicker{font-weight:700;color:var(--water-dk);font-size:.95rem}
+.title-sign{background:linear-gradient(var(--wood-lt),var(--wood));border:4px solid var(--wood-dk);border-radius:20px;padding:14px 20px 10px;box-shadow:0 6px 0 rgba(0,0,0,.2)}
+.title-sign h1{font:800 clamp(2rem,6.4vw,3.4rem)/.95 var(--f-display);color:var(--gold);text-shadow:0 3px 0 var(--wood-dk),0 0 2px var(--wood-dk);text-wrap:balance}
+.title-sign p{color:#fff;font-weight:700;margin-top:6px;text-shadow:0 1px 0 var(--wood-dk)}
+.menu{display:flex;flex-wrap:wrap;gap:10px}
+.hero-art{position:relative;border-radius:20px;overflow:hidden;border:3px solid var(--line);min-height:260px;background:#cfeaf0}
+.hero-art svg.scene{position:absolute;inset:0;width:100%;height:100%}
+.hero-art .mascot{position:absolute;left:4%;bottom:0;width:34%;max-width:150px}
+.foot{font-weight:700;color:var(--ink-soft)}
+
+/* panduan */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--mint);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h2{font:800 1.2rem var(--f-display);color:var(--leaf-dk)}
+.guide li{display:flex;gap:12px;align-items:flex-start}
+.guide ul,.steps,.plain{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.ico{flex:none;width:36px;height:36px;color:var(--leaf-dk)}
+.sw{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:8px 12px;cursor:pointer}
+.sw small{display:block;color:var(--ink-soft);font-size:.82rem;line-height:1.3}
+.sw input{appearance:none;-webkit-appearance:none;flex:none;width:52px;height:30px;border-radius:99px;background:#7d8a82;position:relative;margin:0;cursor:pointer}
+.sw input::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw input:checked{background:var(--leaf)}
+.sw input:checked::after{transform:translateX(22px)}
+.sw input:disabled{opacity:.5;cursor:not-allowed}
+
+/* peta */
+.map{position:relative;border-radius:22px;overflow:hidden;border:3px solid var(--wood-lt);background:#9ed59a;aspect-ratio:1000/562}
+.map>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.node{position:absolute;transform:translate(-50%,-50%);width:var(--nd);height:var(--nd);border-radius:50%;border:4px solid #fff;background:var(--c);color:#fff;font:800 clamp(1.2rem,3vw,1.7rem) var(--f-display);cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.28);display:grid;place-items:center;padding:0;line-height:1}
+.node:hover:not(:disabled){transform:translate(-50%,-50%) scale(1.07)}
+.node.locked{background:#7d8a82;cursor:not-allowed}
+.node.current::before{content:'';position:absolute;inset:-10px;border-radius:50%;border:3px solid var(--c);animation:ping 1.8s ease-out infinite}
+@keyframes ping{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.4);opacity:0}}
+.node .lbl{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:min(150px,30vw);background:var(--paper);color:var(--ink);border:2px solid var(--c);border-radius:10px;padding:2px 8px;font:700 .8rem/1.25 var(--f-body);text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.node .bd{position:absolute;right:-8px;top:-8px;width:26px;height:26px;border-radius:50%;background:var(--ok);border:2px solid #fff;display:grid;place-items:center}
+.node .bd svg{width:14px;height:14px}
+.node .lk{width:44%;height:44%}
+
+/* Level 1 */
+.l1{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cardimg{position:relative;background:#dff1f3;border:3px solid var(--line);border-radius:16px;padding:6px 6px 0;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;gap:4px;overflow:hidden;min-width:0}
+.cardimg svg{width:100%;height:auto;display:block}
+.cardimg .tag{background:var(--paper);border-top:2px solid var(--line);margin:0 -6px;padding:5px 6px;font-weight:700;font-size:.88rem;text-align:center;color:var(--ink-soft)}
+.cardimg.paired .tag{color:var(--leaf-dk);background:var(--ok-bg)}
+.cardimg.sel{border-color:var(--sun);box-shadow:0 0 0 4px rgba(242,140,27,.35)}
+.num{position:absolute;left:6px;top:6px;background:var(--leaf-dk);color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:800 .9rem var(--f-display);z-index:1}
+.names{display:flex;flex-direction:column;gap:8px}
+.name{background:var(--paper);border:2px solid var(--line);border-radius:12px;min-height:48px;padding:8px 14px;text-align:left;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.name:hover{border-color:var(--leaf)}
+.name.used{background:var(--ok-bg);border-color:var(--ok)}
+.name .num2{font-size:.8rem;background:var(--leaf-dk);color:#fff;border-radius:999px;padding:1px 10px;white-space:nowrap}
+
+/* Level 2 */
+.stmt{background:#fff;border:3px solid var(--line);border-radius:18px;padding:clamp(16px,4vw,28px);font:700 clamp(1.15rem,3vw,1.5rem)/1.4 var(--f-body);text-align:center;text-wrap:balance}
+html.hc .stmt{background:#fff}
+.fo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fo .btn{min-height:56px;font-size:1.25rem}
+.fo .btn[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:2px}
+.verdict{border-radius:14px;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;border:2px solid}
+.verdict.ok{background:var(--ok-bg);border-color:var(--ok)}
+.verdict.bad{background:var(--bad-bg);border-color:var(--bad)}
+.meter{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--leaf)}
+
+/* Level 3 */
+.l3{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.chips,.slots{display:flex;flex-direction:column;gap:10px}
+.sent{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;cursor:pointer;font-weight:700;min-height:48px}
+.sent.sel{border-color:var(--sun);box-shadow:0 0 0 4px rgba(242,140,27,.35)}
+.slotrow{display:flex;flex-direction:column;gap:4px}
+.stag{align-self:flex-start;background:var(--tc);color:#fff;border-radius:999px;padding:1px 12px;font:800 .9rem var(--f-display)}
+.slot{border:3px dashed var(--tc);background:#fff;border-radius:12px;min-height:56px;padding:8px 14px;text-align:left;cursor:pointer;color:var(--ink-soft);font-weight:700}
+.slot.filled{border-style:solid;color:var(--ink)}
+.empty{color:var(--ink-soft);font-style:normal;padding:8px 2px}
+html.dys .empty{font-style:normal}
+
+/* Level 4 */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.opt{background:#fff;border:3px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;cursor:pointer;font-weight:700;min-width:0}
+.opt svg{width:84px;height:84px}
+.opt[aria-pressed="true"]{border-color:var(--sun);box-shadow:0 0 0 4px rgba(242,140,27,.35)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg);box-shadow:none}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg);box-shadow:none}
+.opt .why{font-weight:400;font-size:.9rem;color:var(--ink)}
+.opt .mk2{font-weight:800}
+
+/* Level 5 */
+.l5{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.pic{border:3px solid var(--line);border-radius:16px;overflow:hidden;background:#cfeaf0}
+.pic svg{display:block;width:100%;height:auto}
+.facts{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:4px}
+textarea{width:100%;min-height:190px;border:3px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);resize:vertical}
+html.hc textarea{border-color:#000}
+.cnt{display:flex;justify-content:space-between;gap:8px;font-size:.92rem;color:var(--ink-soft)}
+
+/* umpan balik */
+.fbhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.fbhead .mascot{width:92px;flex:none}
+.big-ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;flex:none}
+.big-ic.ok{background:var(--ok);color:#fff}
+.big-ic.mid{background:var(--sun);color:var(--on-sun)}
+.big-ic.low{background:var(--bad);color:#fff}
+.big-ic svg{width:36px;height:36px}
+.fbtitle{font:800 clamp(1.4rem,4vw,2rem)/1.1 var(--f-display);color:var(--leaf-dk)}
+.lesson{display:flex;gap:14px;align-items:center;background:var(--mint);border:2px solid var(--line);border-radius:16px;padding:12px}
+.lesson svg{width:110px;flex:none;border-radius:10px;background:#dff1f3}
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.items li{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:8px 12px;border:2px solid}
+.items li.ok{background:var(--ok-bg);border-color:var(--ok)}
+.items li.bad{background:var(--bad-bg);border-color:var(--bad)}
+.items .mk{flex:none;width:24px;height:24px;margin-top:2px}
+.items p{font-size:.95rem}
+.items .mk svg,.verdict .mk svg{width:100%;height:100%;display:block}
+.items .mk>span{display:block;width:100%;height:100%}
+.verdict .mk{color:inherit}
+.verdict.ok .mk{color:var(--ok)}
+.verdict.bad .mk{color:var(--bad)}
+.tipbox{background:var(--warn-bg);border:2px solid var(--wood-lt);border-radius:14px;padding:10px 16px}
+
+/* hasil */
+.res{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.score{font:800 clamp(3.6rem,12vw,5.5rem)/1 var(--f-display);color:var(--leaf-dk);font-variant-numeric:tabular-nums}
+.stars{display:flex;gap:6px}
+.stars svg{width:44px;height:44px}
+.lvbar{display:grid;grid-template-columns:minmax(0,9.5rem) 1fr 3.2rem;gap:8px;align-items:center;font-size:.9rem}
+.lvbar b{font-variant-numeric:tabular-nums;text-align:right}
+.checks li{display:flex;gap:10px;align-items:flex-start}
+.checks svg{flex:none;width:22px;height:22px;color:var(--ok);margin-top:2px}
+.quote{background:linear-gradient(var(--wood-lt),var(--wood));color:#fff;border:3px solid var(--wood-dk);border-radius:14px;padding:12px 16px;font:800 1.1rem/1.3 var(--f-display);text-shadow:0 1px 0 var(--wood-dk)}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,30,18,.6);display:grid;place-items:center;padding:16px;z-index:50;overflow:auto}
+.modal-box{background:var(--paper);border:3px solid var(--wood-lt);border-radius:20px;padding:20px;max-width:640px;width:100%;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 8px);overflow:auto}
+.modal-box h2{font:800 1.4rem var(--f-display);color:var(--leaf-dk)}
+.modal-box input[type=text]{border:3px solid var(--line);border-radius:12px;padding:10px 14px;min-height:48px;background:#fff;color:var(--ink);width:100%}
+.cert{width:100%;height:auto;border:2px solid var(--line);border-radius:8px;display:block}
+
+@media (max-width:760px){
+  .hero,.two,.l1,.l3,.l5,.res{grid-template-columns:1fr}
+  .hero-art{min-height:230px}
+}
+@media (max-width:640px){
+  .map{aspect-ratio:600/1000}
+  .node .lbl{max-width:38vw}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="band" aria-hidden="true" id="band"></div>
+<header id="top" class="wrap top" hidden>
+  <div class="sign">Jelajah Mangrove Digital</div>
+  <div class="tools">
+    <span class="pill" id="scoreChip">Skor 0</span>
+    <button class="pill" data-act="toMap" id="btnMap" type="button">Peta</button>
+    <button class="pill" data-act="speak" id="btnSpeak" type="button" aria-label="Bacakan layar ini">Suara</button>
+    <button class="pill" data-act="toGuide" type="button">Pengaturan</button>
+  </div>
+</header>
+<main id="app" class="wrap" tabindex="-1"></main>
+<div class="vh" id="live" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- data ---------- */
+var PER=20, PASS=0.6;
+var LV=[
+  {n:1,name:'Kenali Mangrove',c:'#2d7fd1'},
+  {n:2,name:'Detektif Fakta',c:'#2f9e55'},
+  {n:3,name:'Susun Struktur LHO',c:'#d96d12'},
+  {n:4,name:'Kearifan Lokal Kendawangan',c:'#7a52c7'},
+  {n:5,name:'Penulis LHO Mangrove',c:'#d6403a'}
+];
+
+var L1=[
+  {id:'akar',name:'Akar tunjang',desc:'akar berlengkung yang menancap di lumpur',fact:'Akar tunjang membantu mangrove berdiri kokoh di lumpur dan menjadi tempat berlindung biota laut.'},
+  {id:'daun',name:'Daun mangrove',desc:'daun hijau tebal pada ranting',fact:'Daun mangrove tebal dan licin; pada beberapa jenis, kelebihan garam dikeluarkan lewat daun.'},
+  {id:'bunga',name:'Bunga mangrove',desc:'bunga kuning berkelopak lima',fact:'Bunga mangrove akan berkembang menjadi buah atau propagul yang dapat tumbuh menjadi bibit baru.'},
+  {id:'kepiting',name:'Kepiting bakau',desc:'hewan merah bercapit dengan banyak kaki',fact:'Kepiting bakau hidup di lumpur dan sela-sela akar mangrove untuk mencari makan dan berlindung.'},
+  {id:'ikan',name:'Ikan',desc:'hewan air berwarna biru dengan sirip dan ekor',fact:'Banyak ikan kecil berlindung dan mencari makan di antara akar mangrove.'}
+];
+var L1M={};L1.forEach(function(x){L1M[x.id]=x;});
+
+var L2=[
+  {s:'Mangrove dapat mencegah abrasi dan menjaga keseimbangan ekosistem pesisir.',t:'fakta',e:'Dapat dibuktikan: akar mangrove menahan tanah dan meredam gelombang sehingga abrasi berkurang.'},
+  {s:'Hutan mangrove adalah tempat wisata yang paling indah di dunia.',t:'opini',e:'Kata "paling indah" adalah penilaian pribadi dan tidak dapat dibuktikan dengan data.'},
+  {s:'Akar tunjang mangrove menancap kuat pada lumpur.',t:'fakta',e:'Hal ini dapat diamati langsung di lapangan.'},
+  {s:'Kepiting bakau lebih enak daripada udang.',t:'opini',e:'Rasa "lebih enak" bergantung pada selera setiap orang.'},
+  {s:'Mangrove tumbuh di pesisir berlumpur yang terkena pasang surut air laut.',t:'fakta',e:'Kondisi tempat tumbuh mangrove dapat diamati dan dibuktikan.'},
+  {s:'Menurut saya, menanam mangrove adalah kegiatan yang membosankan.',t:'opini',e:'"Menurut saya" dan "membosankan" menunjukkan perasaan atau pendapat pribadi.'}
+];
+
+var STRUCT=[
+  {name:'Pernyataan umum',tc:'#2d7fd1',tip:'Pernyataan umum mengenalkan objek yang diamati.'},
+  {name:'Deskripsi bagian',tc:'#c9780a',tip:'Deskripsi bagian menjelaskan ciri bagian-bagian objek.'},
+  {name:'Deskripsi manfaat',tc:'#2a8f55',tip:'Deskripsi manfaat menjelaskan kegunaan objek.'},
+  {name:'Penutup/Simpulan',tc:'#c4433e',tip:'Penutup berisi simpulan atau ajakan.'}
+];
+var L3=[
+  {id:'a',slot:1,t:'Mangrove memiliki akar tunjang yang kuat.'},
+  {id:'b',slot:2,t:'Mangrove bermanfaat mencegah abrasi dan menjadi habitat biota laut.'},
+  {id:'c',slot:0,t:'Mangrove di Kendawangan tumbuh di wilayah pesisir yang berlumpur.'},
+  {id:'d',slot:3,t:'Mangrove perlu dilestarikan agar tetap ada untuk generasi mendatang.'}
+];
+var L3M={};L3.forEach(function(x){L3M[x.id]=x;});
+var L3BY=[];L3.forEach(function(x){L3BY[x.slot]=x;});
+
+var L4=[
+  [
+    {id:'1a',t:'Ikut menanam mangrove bersama masyarakat',good:true,ic:'sprout',w:'Penanaman bibit memulihkan hutan mangrove.'},
+    {id:'1b',t:'Membuang sampah ke sungai',good:false,ic:'trash',w:'Sampah terbawa ke akar mangrove dan mencemari tempat hidup biota.'},
+    {id:'1c',t:'Menebang mangrove untuk perluasan lahan',good:false,ic:'axe',w:'Hilangnya mangrove memicu abrasi dan merusak habitat.'},
+    {id:'1d',t:'Gotong royong menjaga lingkungan pesisir',good:true,ic:'hands',w:'Kerja bersama membuat perawatan pesisir lebih kuat dan berkelanjutan.'}
+  ],
+  [
+    {id:'2a',t:'Membersihkan sampah plastik yang terbawa pasang',good:true,ic:'bottle',w:'Pesisir yang bersih menjaga akar dan biota tetap sehat.'},
+    {id:'2b',t:'Membuka hutan mangrove menjadi tambak',good:false,ic:'pond',w:'Mangrove yang dibuka tidak lagi menahan abrasi dan menaungi biota.'},
+    {id:'2c',t:'Merawat bibit mangrove di persemaian',good:true,ic:'pot',w:'Bibit yang dirawat akan tumbuh kuat saat ditanam.'},
+    {id:'2d',t:'Mengambil kayu mangrove muda untuk dijual',good:false,ic:'log',w:'Pohon muda yang diambil tidak sempat tumbuh besar.'}
+  ],
+  [
+    {id:'3a',t:'Mengajak teman belajar mengenal mangrove',good:true,ic:'book',w:'Makin banyak yang paham, makin banyak yang ikut menjaga.'},
+    {id:'3b',t:'Menangkap kepiting bakau yang masih sangat kecil',good:false,ic:'crab',w:'Kepiting kecil perlu tumbuh agar populasinya tetap lestari.'},
+    {id:'3c',t:'Berjalan di jembatan kayu agar akar tidak terinjak',good:true,ic:'walk',w:'Akar dan bibit di bawahnya tidak rusak.'},
+    {id:'3d',t:'Membakar sampah di tepi hutan bakau',good:false,ic:'fire',w:'Api dan asap dapat merusak pohon dan mencemari udara.'}
+  ]
+];
+
+var FAKTA5=[
+  'Lokasi pengamatan: pesisir Kendawangan, Kalimantan Barat.',
+  'Akar tunjang menancap kuat di lumpur.',
+  'Akar menahan gelombang sehingga abrasi dapat dicegah.',
+  'Kepiting bakau dan ikan hidup di sela-sela akar.',
+  'Warga menanam bibit mangrove secara bergotong royong.'
+];
+
+/* ---------- state ---------- */
+var state={screen:'open',opts:{voice:false,big:false,hc:false,dys:false},best:[0,0,0,0,0],passed:[false,false,false,false,false],guideBack:'map',fb:null,l1:null,l2:null,l3:null,l4:null,text:'',reflect:''};
+var NARR='';
+var app=document.getElementById('app');
+var synth=('speechSynthesis' in window)?window.speechSynthesis:null;
+
+/* ---------- util ---------- */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function total(){return state.best.reduce(function(a,b){return a+b;},0);}
+function doneCount(){return state.passed.filter(Boolean).length;}
+function speak(t){
+  if(!synth||!t)return;
+  try{synth.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='id-ID';u.rate=0.95;
+    var v=(synth.getVoices()||[]).filter(function(v){return /^id/i.test(v.lang);})[0];if(v)u.voice=v;synth.speak(u);}catch(e){}
+}
+function live(t){var l=document.getElementById('live');l.textContent='';setTimeout(function(){l.textContent=t;},30);}
+
+/* ---------- ilustrasi ---------- */
+var SID=0;
+function tree(x,y,s){
+  var g='',k,t;
+  for(k=0;k<7;k++){
+    t=(k/6)*2-1;
+    g+='<path d="M'+(x+t*5*s)+' '+(y-26*s)+' Q'+(x+t*20*s)+' '+(y-24*s)+' '+(x+t*27*s)+' '+y+'" stroke="#6b4423" stroke-width="'+(2.8*s)+'" fill="none" stroke-linecap="round"/>';
+  }
+  g+='<path d="M'+(x-5*s)+' '+(y-24*s)+' L'+(x-4*s)+' '+(y-54*s)+' L'+(x+4*s)+' '+(y-54*s)+' L'+(x+5*s)+' '+(y-24*s)+'Z" fill="#5a3a1e"/>';
+  var cs=['#256f3f','#2e8b4f','#3fa35c'];
+  [[0,-68,22],[-17,-60,16],[17,-60,16],[-7,-80,15],[10,-76,14]].forEach(function(c,i){
+    g+='<circle cx="'+(x+c[0]*s)+'" cy="'+(y+c[1]*s)+'" r="'+(c[2]*s)+'" fill="'+cs[i%3]+'"/>';
+  });
+  return g;
+}
+function bandSVG(){
+  var r=rng(5),g='',i;
+  for(i=0;i<11;i++){g+=tree(30+i*118+r()*40,152,1.05+r()*0.6);}
+  return '<svg viewBox="0 0 1200 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><ellipse cx="600" cy="156" rx="640" ry="10" fill="#8fd0cf" opacity=".6"/>'+g+'</svg>';
+}
+function scene(w,h,seed){
+  var id=++SID,r=rng(seed||3),g='',i;
+  g+='<defs><linearGradient id="sk'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fdcf0"/><stop offset="1" stop-color="#fff0c6"/></linearGradient><linearGradient id="wt'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fbac0"/><stop offset="1" stop-color="#1d8590"/></linearGradient></defs>';
+  g+='<rect width="'+w+'" height="'+h+'" fill="url(#sk'+id+')"/>';
+  g+='<circle cx="'+(w*0.78)+'" cy="'+(h*0.22)+'" r="'+(h*0.09)+'" fill="#ffe08a"/>';
+  g+='<rect y="'+(h*0.6)+'" width="'+w+'" height="'+(h*0.4)+'" fill="url(#wt'+id+')"/>';
+  for(i=0;i<6;i++){var rx=r()*w,ry=h*(0.68+r()*0.28);g+='<path d="M'+rx+' '+ry+' q8 -5 16 0 t16 0" stroke="#bdf0ee" stroke-width="2" fill="none" opacity=".8"/>';}
+  var sc=h/260;
+  for(i=0;i<7;i++){g+=tree(w*(0.06+i*0.15)+r()*14,h*(0.66+r()*0.08),sc*(0.8+r()*0.5));}
+  g+='<path d="M'+(w*0.2)+' '+(h*0.2)+' q6 -6 12 0 q6 -6 12 0" stroke="#33503e" stroke-width="2" fill="none"/>';
+  g+='<path d="M'+(w*0.32)+' '+(h*0.12)+' q5 -5 10 0 q5 -5 10 0" stroke="#33503e" stroke-width="2" fill="none"/>';
+  return '<svg class="scene" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+g+'</svg>';
+}
+var MASCOT='<svg class="mascot" viewBox="0 0 120 140" role="img" aria-label="Penjelajah mangrove"><path d="M16 140C16 108 34 98 60 98s44 10 44 42Z" fill="#3a8f52"/><rect x="50" y="86" width="20" height="16" rx="7" fill="#e9b48a"/><circle cx="60" cy="64" r="28" fill="#f0c19a"/><path d="M24 54C24 28 44 14 60 14s36 14 36 40Z" fill="#d9a85b"/><ellipse cx="60" cy="54" rx="47" ry="9" fill="#c28f3f"/><path d="M30 46Q60 56 90 46L90 40Q60 50 30 40Z" fill="#7a4a1d"/><circle cx="49" cy="68" r="3.4" fill="#2a1500"/><circle cx="71" cy="68" r="3.4" fill="#2a1500"/><circle cx="42" cy="76" r="5" fill="#f2a58e" opacity=".6"/><circle cx="78" cy="76" r="5" fill="#f2a58e" opacity=".6"/><path d="M50 78Q60 88 70 78" stroke="#2a1500" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M40 100L60 124L80 100" stroke="#5a3a1e" stroke-width="4" fill="none"/><rect x="47" y="118" width="26" height="15" rx="5" fill="#2b3a33"/></svg>';
+
+var ART={
+  akar:'<svg viewBox="0 0 120 90" aria-hidden="true"><rect width="120" height="90" fill="#dff1f3"/><rect y="62" width="120" height="28" fill="#8a6a45"/><g stroke="#6b4423" stroke-width="5" fill="none" stroke-linecap="round"><path d="M60 30Q38 34 26 74"/><path d="M60 32Q50 44 44 76"/><path d="M60 32Q70 44 76 76"/><path d="M60 30Q82 34 94 74"/><path d="M60 30V60"/></g><path d="M54 8h12l-2 26H56Z" fill="#5a3a1e"/><circle cx="60" cy="10" r="14" fill="#3fa35c"/></svg>',
+  daun:'<svg viewBox="0 0 120 90" aria-hidden="true"><rect width="120" height="90" fill="#e6f6df"/><path d="M14 78Q60 52 106 18" stroke="#6b4423" stroke-width="4" fill="none" stroke-linecap="round"/><g fill="#2e8b4f"><ellipse cx="42" cy="48" rx="20" ry="9" transform="rotate(-50 42 48)"/><ellipse cx="62" cy="62" rx="20" ry="9" transform="rotate(25 62 62)"/><ellipse cx="78" cy="34" rx="20" ry="9" transform="rotate(-40 78 34)"/></g><g stroke="#cdeccb" stroke-width="1.5"><path d="M30 58L54 38"/><path d="M50 56L74 68"/><path d="M68 46L90 28"/></g></svg>',
+  bunga:'<svg viewBox="0 0 120 90" aria-hidden="true"><rect width="120" height="90" fill="#eaf5e2"/><path d="M60 52V88" stroke="#2e8b4f" stroke-width="5"/><g transform="translate(60 40)" fill="#ffd23f"><ellipse cx="0" cy="-17" rx="8" ry="16"/><ellipse cx="0" cy="-17" rx="8" ry="16" transform="rotate(72)"/><ellipse cx="0" cy="-17" rx="8" ry="16" transform="rotate(144)"/><ellipse cx="0" cy="-17" rx="8" ry="16" transform="rotate(216)"/><ellipse cx="0" cy="-17" rx="8" ry="16" transform="rotate(288)"/></g><circle cx="60" cy="40" r="7" fill="#e8791a"/></svg>',
+  kepiting:'<svg viewBox="0 0 120 90" aria-hidden="true"><rect width="120" height="90" fill="#e7dcc0"/><g stroke="#b5352a" stroke-width="4" fill="none" stroke-linecap="round"><path d="M34 52L16 62"/><path d="M36 58L22 74"/><path d="M86 52L104 62"/><path d="M84 58L98 74"/><path d="M42 62L34 78"/><path d="M78 62L86 78"/></g><ellipse cx="60" cy="52" rx="28" ry="18" fill="#d6453a"/><g fill="#d6453a"><circle cx="24" cy="30" r="11"/><circle cx="96" cy="30" r="11"/></g><path d="M30 46L26 36M90 46L94 36" stroke="#d6453a" stroke-width="6" stroke-linecap="round"/><path d="M18 24l6 6-2-9zM102 24l-6 6 2-9z" fill="#e7dcc0"/><circle cx="52" cy="36" r="4" fill="#fff"/><circle cx="68" cy="36" r="4" fill="#fff"/><circle cx="52" cy="36" r="2" fill="#000"/><circle cx="68" cy="36" r="2" fill="#000"/></svg>',
+  ikan:'<svg viewBox="0 0 120 90" aria-hidden="true"><rect width="120" height="90" fill="#cde9f4"/><path d="M92 45L112 28V62Z" fill="#2f73b8"/><ellipse cx="58" cy="45" rx="38" ry="20" fill="#3b8fd6"/><path d="M50 26Q58 14 70 26Z" fill="#2f73b8"/><path d="M52 64Q58 76 68 64Z" fill="#2f73b8"/><circle cx="36" cy="40" r="5" fill="#fff"/><circle cx="35" cy="40" r="2.4" fill="#000"/><path d="M60 32Q70 45 60 58" stroke="#2f73b8" stroke-width="2.5" fill="none"/></svg>'
+};
+var ICON={
+  sprout:'<circle cx="32" cy="32" r="30" fill="#e4f3e1"/><ellipse cx="32" cy="50" rx="18" ry="5" fill="#8a6a45"/><path d="M32 50V30" stroke="#2d7a43" stroke-width="4" stroke-linecap="round"/><path d="M32 34C20 34 14 26 14 18 24 18 32 24 32 34Z" fill="#3fa35c"/><path d="M32 30C42 30 50 24 50 14 40 14 32 20 32 30Z" fill="#2d7a43"/>',
+  trash:'<circle cx="32" cy="32" r="30" fill="#e6eef0"/><path d="M6 48q8-8 14 0t14 0 14 0 12 0" stroke="#2aa1a6" stroke-width="4" fill="none"/><circle cx="32" cy="26" r="11" fill="#6b6f76"/><path d="M28 14l4-5 4 5Z" fill="#6b6f76"/><path d="M32 40v6m-4-3l4 4 4-4" stroke="#b83a2c" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  axe:'<circle cx="32" cy="32" r="30" fill="#f5e8d3"/><rect x="16" y="34" width="32" height="14" fill="#8a5726"/><ellipse cx="32" cy="48" rx="16" ry="5" fill="#8a5726"/><ellipse cx="32" cy="34" rx="16" ry="6" fill="#e0b070"/><ellipse cx="32" cy="34" rx="8" ry="3" fill="none" stroke="#8a5726" stroke-width="1.5"/><path d="M14 8L44 38" stroke="#5a3513" stroke-width="4" stroke-linecap="round"/><path d="M10 6l12 2 2 12-8-6Z" fill="#9aa5a0"/>',
+  hands:'<circle cx="32" cy="32" r="30" fill="#e8eefb"/><circle cx="14" cy="22" r="6" fill="#f0c19a"/><circle cx="32" cy="18" r="6" fill="#f0c19a"/><circle cx="50" cy="22" r="6" fill="#f0c19a"/><path d="M6 46Q6 30 14 30t8 16Z" fill="#2d7fd1"/><path d="M24 44Q24 26 32 26t8 18Z" fill="#e8791a"/><path d="M42 46Q42 30 50 30t8 16Z" fill="#d6403a"/><path d="M12 48H52" stroke="#5a3513" stroke-width="3" stroke-linecap="round"/>',
+  bottle:'<circle cx="32" cy="32" r="30" fill="#e4f3f8"/><rect x="24" y="18" width="16" height="34" rx="5" fill="#8fd3f0" stroke="#136b73" stroke-width="2"/><rect x="28" y="10" width="8" height="9" fill="#8fd3f0" stroke="#136b73" stroke-width="2"/><rect x="27" y="6" width="10" height="5" rx="2" fill="#d6403a"/><path d="M50 12l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#f2b705"/>',
+  pond:'<circle cx="32" cy="32" r="30" fill="#e6eef0"/><rect x="8" y="30" width="48" height="22" rx="4" fill="#2aa1a6" stroke="#8a5726" stroke-width="4"/><path d="M14 40q6-4 12 0t12 0 8 0" stroke="#bdf0ee" stroke-width="2" fill="none"/><path d="M20 12l24 14M44 12L20 26" stroke="#b83a2c" stroke-width="4" stroke-linecap="round"/>',
+  pot:'<circle cx="32" cy="32" r="30" fill="#e4f3e1"/><path d="M18 30h28l-4 24H22Z" fill="#6b4423"/><path d="M32 30V16" stroke="#2d7a43" stroke-width="4" stroke-linecap="round"/><path d="M32 22C24 22 18 18 18 10 26 10 32 14 32 22Z" fill="#3fa35c"/><path d="M32 18C40 18 46 14 46 6 38 6 32 10 32 18Z" fill="#2d7a43"/>',
+  log:'<circle cx="32" cy="32" r="30" fill="#f5e8d3"/><rect x="8" y="16" width="40" height="16" rx="8" fill="#8a5726"/><circle cx="48" cy="24" r="8" fill="#e0b070"/><circle cx="48" cy="24" r="3.5" fill="none" stroke="#8a5726" stroke-width="1.5"/><rect x="14" y="34" width="40" height="16" rx="8" fill="#8a5726"/><circle cx="54" cy="42" r="8" fill="#e0b070"/><circle cx="54" cy="42" r="3.5" fill="none" stroke="#8a5726" stroke-width="1.5"/>',
+  book:'<circle cx="32" cy="32" r="30" fill="#e4f3e1"/><path d="M8 18Q22 14 32 20V50Q22 44 8 48Z" fill="#fff" stroke="#2d7a43" stroke-width="2.5"/><path d="M56 18Q42 14 32 20V50Q42 44 56 48Z" fill="#fff" stroke="#2d7a43" stroke-width="2.5"/><path d="M13 26q8-2 14 2M13 33q8-2 14 2M37 28q6-4 14-2M37 35q6-4 14-2" stroke="#7aa88a" stroke-width="2" fill="none"/>',
+  crab:'<circle cx="32" cy="32" r="30" fill="#e7dcc0"/><g stroke="#b5352a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M18 36L8 44M20 40L12 52M46 36L56 44M44 40L52 52"/></g><ellipse cx="32" cy="36" rx="15" ry="10" fill="#d6453a"/><circle cx="14" cy="22" r="6" fill="#d6453a"/><circle cx="50" cy="22" r="6" fill="#d6453a"/><circle cx="27" cy="26" r="2.5" fill="#fff"/><circle cx="37" cy="26" r="2.5" fill="#fff"/>',
+  walk:'<circle cx="32" cy="32" r="30" fill="#dff1f3"/><path d="M4 46q8-4 14 0t14 0 14 0 14 0" stroke="#2aa1a6" stroke-width="3" fill="none"/><rect x="8" y="30" width="48" height="6" fill="#c28f3f"/><g stroke="#5a3513" stroke-width="1.5"><path d="M20 30v6M32 30v6M44 30v6"/></g><rect x="12" y="36" width="4" height="16" fill="#8a5726"/><rect x="48" y="36" width="4" height="16" fill="#8a5726"/><path d="M14 48C18 38 22 34 24 36" stroke="#6b4423" stroke-width="2.5" fill="none"/>',
+  fire:'<circle cx="32" cy="32" r="30" fill="#fbe3df"/><path d="M32 8C40 20 50 26 48 40 46 54 18 54 16 40 14 30 24 26 26 18 30 22 30 14 32 8Z" fill="#f28c1b"/><path d="M32 30C38 38 40 44 34 48 26 48 24 40 32 30Z" fill="#ffd666"/>'
+};
+function icon(k){return '<svg viewBox="0 0 64 64" aria-hidden="true">'+ICON[k]+'</svg>';}
+var CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+var CROSS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+var LOCK='<svg class="lk" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="#fff" stroke-width="2.4"/></svg>';
+function star(on){return '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 15,9 22,9.5 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.5 9,9" fill="'+(on?'#f2b705':'#d4d9d4')+'" stroke="'+(on?'#b57f00':'#aab2ab')+'" stroke-width="1.2" stroke-linejoin="round"/></svg>';}
+
+/* ---------- peta ---------- */
+function mapHTML(){
+  var mob=window.matchMedia('(max-width:640px)').matches;
+  var W=mob?600:1000,H=mob?1000:562;
+  var P=mob?[[27,88],[70,70],[30,52],[70,34],[34,16]]:[[11,68],[30,32],[50,64],[70,30],[89,60]];
+  var E=mob?[[8,104],[60,-4]]:[[-4,80],[104,44]];
+  var pts=[E[0]].concat(P).concat([E[1]]).map(function(p){return [p[0]*W/100,p[1]*H/100];});
+  var d='M'+pts[0][0]+' '+pts[0][1],samples=[],i,t,u;
+  for(i=0;i<pts.length-1;i++){
+    var p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+    var c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6],c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];
+    d+=' C'+c1[0]+' '+c1[1]+' '+c2[0]+' '+c2[1]+' '+p2[0]+' '+p2[1];
+    for(t=0;t<=1.001;t+=0.05){u=1-t;samples.push([u*u*u*p1[0]+3*u*u*t*c1[0]+3*u*t*t*c2[0]+t*t*t*p2[0],u*u*u*p1[1]+3*u*u*t*c1[1]+3*u*t*t*c2[1]+t*t*t*p2[1]]);}
+  }
+  function near(x,y,lim){for(var k=0;k<samples.length;k++){var dx=samples[k][0]-x,dy=samples[k][1]-y;if(dx*dx+dy*dy<lim*lim)return true;}return false;}
+  var r=rng(11),trees=[],tries=0,maxT=mob?11:15,sc0=mob?0.8:1;
+  while(trees.length<maxT&&tries<400){
+    tries++;
+    var x=r()*W,y=H*0.14+r()*H*0.84,s=(0.75+r()*0.5)*sc0;
+    if(near(x,y,100*sc0)||near(x,y-40*s,100*sc0))continue;
+    var ok=true;for(var k=0;k<trees.length;k++){var dx=trees[k][0]-x,dy=trees[k][1]-y;if(dx*dx+dy*dy<(75*sc0)*(75*sc0)){ok=false;break;}}
+    if(ok)trees.push([x,y,s]);
+  }
+  trees.sort(function(a,b){return a[1]-b[1];});
+  var g='<defs><linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3e6aa"/><stop offset="1" stop-color="#8ecb8a"/></linearGradient></defs><rect width="'+W+'" height="'+H+'" fill="url(#land)"/>';
+  var r2=rng(4);for(i=0;i<9;i++){g+='<ellipse cx="'+(r2()*W)+'" cy="'+(r2()*H)+'" rx="'+(50+r2()*60)+'" ry="'+(16+r2()*18)+'" fill="#7fbf7d" opacity=".35"/>';}
+  g+='<path d="'+d+'" stroke="#1f8790" stroke-width="'+(mob?78:92)+'" fill="none" stroke-linecap="round"/>';
+  g+='<path d="'+d+'" stroke="#43c0c4" stroke-width="'+(mob?62:76)+'" fill="none" stroke-linecap="round"/>';
+  g+='<path d="'+d+'" stroke="#8fe3e1" stroke-width="'+(mob?30:38)+'" fill="none" stroke-linecap="round" opacity=".55"/>';
+  g+='<path d="'+d+'" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="2 14"/>';
+  trees.forEach(function(tr){g+=tree(tr[0],tr[1],tr[2]);});
+  var bs=samples[8];
+  g+='<g transform="translate('+bs[0]+' '+bs[1]+') scale('+(mob?0.8:1)+')"><path d="M-22 0h44l-8 12h-28Z" fill="#8a5726" stroke="#5a3513" stroke-width="2"/><path d="M0 0V-26" stroke="#5a3513" stroke-width="3"/><path d="M2 -26L20 -6H2Z" fill="#fff" stroke="#c9cfc9"/></g>';
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+g+'</svg>';
+  var nodes=LV.map(function(lv,idx){
+    var done=state.passed[idx],open=idx===0||state.passed[idx-1],cur=open&&!done&&(idx===0||state.passed[idx-1]);
+    var cls='node'+(open?'':' locked')+(cur?' current':'');
+    var lab='Level '+lv.n+': '+lv.name+(done?', selesai, skor '+state.best[idx]+' dari 20':open?', terbuka':', terkunci, selesaikan level sebelumnya dulu');
+    return '<button type="button" class="'+cls+'" style="left:'+P[idx][0]+'%;top:'+P[idx][1]+'%;--c:'+lv.c+'" data-act="node" data-n="'+lv.n+'" data-fid="node'+lv.n+'" aria-label="'+esc(lab)+'"'+(open?'':' disabled')+'>'+
+      (open?lv.n:LOCK)+(done?'<span class="bd">'+CHECK.replace('currentColor','#fff')+'</span>':'')+'<span class="lbl">'+esc(lv.name)+'</span></button>';
+  }).join('');
+  return '<div class="map" role="group" aria-label="Peta petualangan lima level">'+svg+nodes+'</div>';
+}
+
+/* ---------- layar ---------- */
+var SCREENS={};
+
+SCREENS.open=function(){
+  return {narr:'Jelajah Mangrove Digital. Petualangan seru menulis teks laporan hasil observasi. Tekan Mulai Petualangan untuk bermain.',html:
+  '<section class="panel hero" aria-labelledby="t1"><div class="hero-left">'+
+  '<p class="kicker">Bahasa Indonesia Kelas X · Teks Laporan Hasil Observasi</p>'+
+  '<div class="title-sign"><h1 id="t1">Jelajah Mangrove Digital</h1><p>Petualangan seru menulis teks LHO</p></div>'+
+  '<div class="menu"><button class="btn big" type="button" data-act="start">Mulai Petualangan</button></div>'+
+  '<div class="menu"><button class="btn ghost" type="button" data-act="goals">Tujuan Game</button><button class="btn ghost" type="button" data-act="toGuide">Pengaturan</button><button class="btn ghost" type="button" data-act="quit">Keluar</button></div>'+
+  '<p class="foot">SMA Negeri 1 Kendawangan</p></div>'+
+  '<div class="hero-art">'+scene(400,300,9)+MASCOT+'</div></section>'};
+};
+
+SCREENS.guide=function(){
+  var o=state.opts,sup=!!synth;
+  function sw(k,t,s,dis){return '<label class="sw"><span><b>'+t+'</b><small>'+s+'</small></span><input type="checkbox" role="switch" data-opt="'+k+'" '+(o[k]?'checked':'')+(dis?' disabled':'')+'></label>';}
+  var ic={
+    book:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5q5-2 9 1 4-3 9-1v13q-5-2-9 1-4-3-9-1Z"/><path d="M12 6v13"/></svg>',
+    tap:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5a1.6 1.6 0 013.2 0v5l5 1.2a2 2 0 011.5 2.4L18 19a2 2 0 01-2 1.5H11a2 2 0 01-1.6-.8L5 14.5a1.5 1.5 0 012.2-2Z"/></svg>',
+    set:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>'
+  };
+  return {narr:'Panduan bermain. Baca petunjuk di setiap level. Ketuk atau klik untuk memilih dan menulis jawaban. Atur narasi suara, ukuran teks, kontras, dan mode ramah disleksia di sebelah kanan. Setiap level bernilai dua puluh poin. Capai minimal dua belas poin untuk membuka level berikutnya.',html:
+  '<section class="panel" aria-labelledby="t2"><div class="lvl-head"><h2 class="sign sm" id="t2">Panduan dan Aksesibilitas</h2></div><div class="two">'+
+  '<div class="card guide"><h2>Panduan Bermain</h2><ul>'+
+  '<li>'+ic.book+'<span>Baca petunjuk di setiap level sebelum menjawab.</span></li>'+
+  '<li>'+ic.tap+'<span>Ketuk atau klik untuk memilih jawaban. Pada level menulis, ketik jawabanmu.</span></li>'+
+  '<li>'+ic.set+'<span>Atur ukuran teks, suara, dan warna sesuai kebutuhanmu.</span></li></ul>'+
+  '<p class="note"><b>Skor:</b> tiap level bernilai 20 poin, total 100. Capai minimal 12 poin untuk membuka level berikutnya. Kamu boleh mengulang kapan saja.</p></div>'+
+  '<div class="card"><h2>Fitur Aksesibilitas</h2>'+
+  sw('voice','Narasi suara',sup?'Layar dibacakan otomatis. Tombol Suara membacakan ulang.':'Tidak didukung di peramban ini.',!sup)+
+  sw('big','Teks besar','Memperbesar semua teks.')+
+  sw('hc','Mode kontras tinggi','Warna hitam-putih yang tegas.')+
+  sw('dys','Mode ramah disleksia','Huruf dan jarak antarkata lebih lega.')+
+  '</div></div><div class="row end"><button class="btn green" type="button" data-act="guideNext">Lanjut</button></div></section>'};
+};
+
+SCREENS.map=function(){
+  var d=doneCount();
+  return {narr:'Peta petualangan. Selesaikan setiap level untuk menjadi Penjaga Mangrove Kendawangan. '+d+' dari 5 level selesai.',html:
+  '<section class="panel" aria-labelledby="t3"><div class="lvl-head"><h2 class="sign sm" id="t3">Peta Petualangan</h2><p class="prog"><b>'+d+'</b> dari 5 level selesai · Skor <b>'+total()+'</b> dari 100</p></div>'+
+  '<p class="instr">Selesaikan setiap level untuk menjadi Penjaga Mangrove Kendawangan!</p>'+mapHTML()+
+  (state.passed[4]?'<div class="row end"><button class="btn green" type="button" data-act="toResult">Lihat Hasil Akhir</button></div>':'')+'</section>'};
+};
+
+function head(n,instr){
+  var lv=LV[n-1];
+  return '<div class="lvl-head"><span class="chip">Level '+n+'</span><h2 class="lvl-title" id="lt">'+esc(lv.name)+'</h2></div><p class="instr">'+instr+'</p>';
+}
+
+/* Level 1 */
+function initL1(){var ids=L1.map(function(x){return x.id;});state.l1={img:shuffle(ids),names:shuffle(ids),sel:null,pairs:{}};}
+SCREENS.l1=function(){
+  var s=state.l1,n=Object.keys(s.pairs).length;
+  var imgs=s.img.map(function(id,i){
+    var it=L1M[id],nm=s.pairs[id];
+    return '<button type="button" class="cardimg'+(s.sel===id?' sel':'')+(nm?' paired':'')+'" data-act="l1img" data-id="'+id+'" data-fid="img-'+id+'" aria-pressed="'+(s.sel===id)+'" aria-label="Gambar '+(i+1)+': '+it.desc+(nm?', dipasangkan dengan '+L1M[nm].name:'')+'"><span class="num">'+(i+1)+'</span>'+ART[id]+'<span class="tag">'+(nm?esc(L1M[nm].name):(s.sel===id?'Pilih namanya':'Belum dipasangkan'))+'</span></button>';
+  }).join('');
+  var names=s.names.map(function(id){
+    var k=Object.keys(s.pairs).filter(function(k){return s.pairs[k]===id;})[0];
+    return '<button type="button" class="name'+(k?' used':'')+'" data-act="l1name" data-id="'+id+'" data-fid="nm-'+id+'"><span>'+esc(L1M[id].name)+'</span>'+(k?'<span class="num2">Gambar '+(s.img.indexOf(k)+1)+'</span>':'')+'</button>';
+  }).join('');
+  return {narr:'Level 1, Kenali Mangrove. Pasangkan gambar dengan nama yang tepat. Pilih satu gambar, lalu pilih namanya.',html:
+  '<section class="panel" aria-labelledby="lt">'+head(1,'Pasangkan gambar dengan nama yang tepat! Pilih satu gambar, lalu pilih namanya.')+
+  '<div class="l1"><div class="imgs">'+imgs+'</div><div class="names">'+names+'</div></div>'+
+  '<p class="hint">'+n+' dari 5 gambar sudah dipasangkan. Ketuk pasangan yang sudah dibuat untuk mengubahnya.</p>'+
+  '<div class="row end"><button class="btn green" type="button" data-act="l1check"'+(n<5?' disabled':'')+'>Cek Jawaban</button></div></section>'};
+};
+
+/* Level 2 */
+function initL2(){state.l2={order:shuffle(L2.map(function(_,i){return i;})),i:0,pick:null,shown:false,res:[]};}
+SCREENS.l2=function(){
+  var s=state.l2,it=L2[s.order[s.i]],last=s.i===L2.length-1,r=s.res[s.res.length-1];
+  var v=s.shown?'<div class="verdict '+(r.ok?'ok':'bad')+'" role="status"><span class="mk" style="width:24px;flex:none">'+(r.ok?CHECK:CROSS)+'</span><div><b>'+(r.ok?'Benar!':'Belum tepat.')+' Pernyataan ini adalah '+(it.t==='fakta'?'FAKTA':'OPINI')+'.</b><p>'+esc(it.e)+'</p></div></div>':'';
+  return {narr:'Level 2, Detektif Fakta. Soal '+(s.i+1)+' dari '+L2.length+'. Tentukan apakah pernyataan berikut termasuk fakta atau opini. '+it.s,html:
+  '<section class="panel" aria-labelledby="lt">'+head(2,'Tentukan apakah pernyataan berikut termasuk FAKTA atau OPINI!')+
+  '<div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="'+L2.length+'" aria-valuenow="'+(s.i+(s.shown?1:0))+'"><i style="width:'+((s.i+(s.shown?1:0))/L2.length*100)+'%"></i></div>'+
+  '<p class="prog">Soal '+(s.i+1)+' dari '+L2.length+'</p>'+
+  '<p class="stmt">'+esc(it.s)+'</p>'+
+  '<div class="fo"><button type="button" class="btn green" data-act="l2pick" data-v="fakta" aria-pressed="'+(s.pick==='fakta')+'" data-fid="pf"'+(s.shown?' disabled':'')+'>Fakta</button><button type="button" class="btn red" data-act="l2pick" data-v="opini" aria-pressed="'+(s.pick==='opini')+'" data-fid="po"'+(s.shown?' disabled':'')+'>Opini</button></div>'+v+
+  '<div class="row end">'+(s.shown?'<button class="btn green" type="button" data-act="l2next">'+(last?'Lihat Umpan Balik':'Soal Berikutnya')+'</button>':'<button class="btn green" type="button" data-act="l2check"'+(s.pick?'':' disabled')+'>Cek Jawaban</button>')+'</div></section>'};
+};
+
+/* Level 3 */
+function initL3(){state.l3={order:shuffle(L3.map(function(x){return x.id;})),slots:[null,null,null,null],sel:null};}
+SCREENS.l3=function(){
+  var s=state.l3,pool=s.order.filter(function(id){return s.slots.indexOf(id)<0;}),filled=s.slots.filter(Boolean).length;
+  var chips=pool.length?pool.map(function(id){return '<button type="button" class="sent'+(s.sel===id?' sel':'')+'" data-act="l3chip" data-id="'+id+'" data-fid="ch-'+id+'" aria-pressed="'+(s.sel===id)+'">'+esc(L3M[id].t)+'</button>';}).join(''):'<p class="empty">Semua kalimat sudah ditempatkan.</p>';
+  var slots=STRUCT.map(function(st,k){
+    var id=s.slots[k];
+    return '<div class="slotrow" style="--tc:'+st.tc+'"><span class="stag">'+(k+1)+'. '+st.name+'</span><button type="button" class="slot'+(id?' filled':'')+'" data-act="l3slot" data-k="'+k+'" data-fid="sl-'+k+'" aria-label="'+esc(st.name)+': '+(id?L3M[id].t+' (ketuk untuk mengeluarkan)':'kosong')+'">'+(id?esc(L3M[id].t):'Ketuk untuk menempatkan kalimat')+'</button></div>';
+  }).join('');
+  return {narr:'Level 3, Susun Struktur LHO. Susunlah kalimat berikut sesuai struktur teks LHO yang tepat. Ketuk satu kalimat, lalu ketuk kotak struktur yang sesuai.',html:
+  '<section class="panel" aria-labelledby="lt">'+head(3,'Susunlah kalimat berikut sesuai struktur teks LHO yang tepat! Ketuk satu kalimat, lalu ketuk kotak strukturnya.')+
+  '<div class="l3"><div><h3 class="note" style="margin-bottom:8px"><b>Kalimat</b></h3><div class="chips">'+chips+'</div></div><div><h3 class="note" style="margin-bottom:8px"><b>Struktur teks LHO</b></h3><div class="slots">'+slots+'</div></div></div>'+
+  '<p class="hint">'+filled+' dari 4 kotak terisi. Ketuk kotak yang sudah terisi untuk mengeluarkan kalimatnya.</p>'+
+  '<div class="row end"><button class="btn green" type="button" data-act="l3check"'+(filled<4?' disabled':'')+'>Cek Jawaban</button></div></section>'};
+};
+
+/* Level 4 */
+function initL4(){state.l4={r:0,sel:{},shown:false,order:L4.map(function(rd){return shuffle(rd);}),res:[]};}
+SCREENS.l4=function(){
+  var s=state.l4,rd=s.order[s.r],last=s.r===L4.length-1,cnt=Object.keys(s.sel).filter(function(k){return s.sel[k];}).length;
+  var cards=rd.map(function(o){
+    var on=!!s.sel[o.id],cls='opt',extra='';
+    if(s.shown){cls+=(on===o.good)?' ok':' bad';extra='<span class="mk2">'+(o.good?'Tindakan tepat':'Kurang tepat')+(on===o.good?' · jawabanmu benar':' · jawabanmu keliru')+'</span><span class="why">'+esc(o.w)+'</span>';}
+    return '<button type="button" class="'+cls+'" data-act="l4pick" data-id="'+o.id+'" data-fid="op-'+o.id+'" aria-pressed="'+on+'"'+(s.shown?' disabled':'')+'>'+icon(o.ic)+'<span>'+esc(o.t)+'</span>'+extra+'</button>';
+  }).join('');
+  return {narr:'Level 4, Kearifan Lokal Kendawangan. Ronde '+(s.r+1)+' dari 3. Pilih semua tindakan yang tepat untuk menjaga ekosistem mangrove di Kendawangan. '+rd.map(function(o){return o.t;}).join('. '),html:
+  '<section class="panel" aria-labelledby="lt">'+head(4,'Pilih semua tindakan yang tepat untuk menjaga ekosistem mangrove di Kendawangan!')+
+  '<p class="prog">Ronde '+(s.r+1)+' dari '+L4.length+' · boleh memilih lebih dari satu</p><div class="opts">'+cards+'</div>'+
+  '<div class="row end">'+(s.shown?'<button class="btn green" type="button" data-act="l4next">'+(last?'Lihat Umpan Balik':'Ronde Berikutnya')+'</button>':'<button class="btn green" type="button" data-act="l4check"'+(cnt?'':' disabled')+'>Cek Jawaban</button>')+'</div></section>'};
+};
+
+/* Level 5 */
+SCREENS.l5=function(){
+  return {narr:'Level 5, Penulis LHO Mangrove. Berdasarkan gambar dan informasi berikut, tulislah teks LHO singkat tentang mangrove di Kendawangan, tiga sampai lima kalimat. '+FAKTA5.join(' '),html:
+  '<section class="panel" aria-labelledby="lt">'+head(5,'Berdasarkan gambar dan informasi berikut, tulislah teks LHO singkat tentang mangrove di Kendawangan (3–5 kalimat)!')+
+  '<div class="l5"><div style="display:flex;flex-direction:column;gap:12px"><div class="pic" role="img" aria-label="Gambar hutan mangrove di tepi sungai dengan akar tunjang">'+scene(360,230,21)+'</div>'+
+  '<div class="card"><h3 style="font:800 1.05rem var(--f-display);color:var(--leaf-dk)">Data pengamatan (contoh)</h3><ul class="facts">'+FAKTA5.map(function(f){return '<li>'+esc(f)+'</li>';}).join('')+'</ul></div></div>'+
+  '<div style="display:flex;flex-direction:column;gap:8px"><label for="txt"><b>Tulisan LHO-mu</b></label><textarea id="txt" placeholder="Tulis jawabanmu di sini ..." aria-describedby="cnt">'+esc(state.text)+'</textarea><div class="cnt" id="cnt"><span id="cs">Kalimat: 0</span><span id="cw">Kata: 0</span></div>'+
+  '<p class="note">Awali dengan pernyataan umum, lanjutkan dengan deskripsi bagian dan manfaat, lalu tutup dengan simpulan. Gunakan bahasa objektif.</p>'+
+  '<div class="row end"><button class="btn green" type="button" data-act="l5send" id="send" disabled>Kirim Jawaban</button></div></div></div></section>',
+  after:function(){var t=document.getElementById('txt');function upd(){state.text=t.value;var a=sentences(t.value);document.getElementById('cs').textContent='Kalimat: '+a.length;document.getElementById('cw').textContent='Kata: '+(t.value.trim()?t.value.trim().split(/\s+/).length:0);document.getElementById('send').disabled=a.length<1;}t.addEventListener('input',upd);upd();}};
+};
+
+/* umpan balik */
+SCREENS.fb=function(){
+  var f=state.fb,full=f.correct===f.total,tone=full?'ok':(f.pass?'mid':'low'),w=f.writing;
+  var title=w?(full?'Tulisanmu sudah memenuhi ciri LHO!':f.pass?'Tulisanmu hampir lengkap!':'Tulisanmu perlu diperbaiki'):(full?'Jawaban Benar!':f.pass?'Bagus, sedikit lagi sempurna!':'Ayo coba lagi!');
+  var next=f.n<5?'Lanjut ke Level '+(f.n+1):'Lanjut ke Hasil Akhir';
+  var ic=tone==='ok'?CHECK:tone==='mid'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v9M12 19v.5"/></svg>':CROSS;
+  var items=f.items.map(function(it){return '<li class="'+(it.ok?'ok':'bad')+'"><span class="mk" aria-hidden="true">'+(it.ok?'<span style="color:var(--ok)">'+CHECK+'</span>':'<span style="color:var(--bad)">'+CROSS+'</span>')+'</span><div><b>'+(it.ok?'Tepat: ':'Perlu diperbaiki: ')+esc(it.title)+'</b>'+(it.detail?'<p>'+esc(it.detail)+'</p>':'')+'</div></li>';}).join('');
+  var tips=(f.tips&&f.tips.length)?'<div class="tipbox"><b>Saran:</b><ul class="facts">'+f.tips.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul></div>':'';
+  var lesson=f.lesson?'<div class="lesson">'+(f.n===1?ART.akar:'')+'<p>'+esc(f.lesson)+'</p></div>':'';
+  return {narr:'Umpan balik level '+f.n+'. '+title+' Skor level ini '+f.score+' dari 20. '+(f.lesson||''),html:
+  '<section class="panel" aria-labelledby="t4"><div class="lvl-head"><span class="chip">'+(w?'Umpan Balik Tulisan':'Umpan Balik Level '+f.n)+'</span></div>'+
+  '<div class="fbhead"><span class="big-ic '+tone+'" aria-hidden="true">'+ic+'</span><div><h2 class="fbtitle" id="t4">'+title+'</h2><p class="prog">Skor level ini <b>'+f.score+'</b> dari 20 · '+f.correct+' dari '+f.total+(w?' kriteria terpenuhi':' benar')+'</p></div>'+MASCOT+'</div>'+
+  lesson+'<ul class="items">'+items+'</ul>'+tips+
+  '<div class="row end"><button class="btn ghost" type="button" data-act="fbRetry">'+(w?'Perbaiki Tulisan':'Ulangi')+'</button><button class="btn green" type="button" data-act="fbNext"'+(state.passed[f.n-1]?'':' disabled')+'>'+next+'</button></div>'+
+  (state.passed[f.n-1]?'':'<p class="note" style="text-align:right">Capai minimal 12 dari 20 poin untuk membuka level berikutnya.</p>')+'</section>'};
+};
+
+SCREENS.result=function(){
+  var t=total(),st=t>=80?3:t>=60?2:1;
+  var learn=['Ciri dan objek mangrove','Fakta dan opini','Struktur teks LHO','Kearifan lokal Kendawangan','Menulis teks LHO'];
+  var bars=LV.map(function(lv,i){return '<div class="lvbar"><span>'+esc(lv.name)+'</span><div class="meter" aria-hidden="true"><i style="width:'+(state.best[i]/PER*100)+'%;background:'+lv.c+'"></i></div><b>'+state.best[i]+'/20</b></div>';}).join('');
+  return {narr:'Selamat! Kamu telah menyelesaikan Petualangan Jelajah Mangrove Digital. Skor akhir '+t+' dari 100.',html:
+  '<section class="panel" aria-labelledby="t5"><div style="text-align:center"><h2 class="sign" id="t5" style="display:inline-block">Selamat! Kamu telah menyelesaikan Petualangan Jelajah Mangrove Digital!</h2></div>'+
+  '<div class="res"><div class="card"><p class="prog"><b>Skor Akhir</b></p><div class="score">'+t+'<span style="font-size:1.4rem;color:var(--ink-soft)"> / 100</span></div><div class="stars" role="img" aria-label="'+st+' dari 3 bintang">'+star(st>=1)+star(st>=2)+star(st>=3)+'</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">'+bars+'</div></div>'+
+  '<div class="card"><h2>Kamu telah belajar tentang</h2><ul class="plain checks">'+learn.map(function(x){return '<li>'+CHECK+'<span>'+x+'</span></li>';}).join('')+'</ul></div></div>'+
+  '<div class="row end"><button class="btn ghost" type="button" data-act="again">Main Lagi</button><button class="btn ghost" type="button" data-act="cert">Buat Sertifikat</button><button class="btn green" type="button" data-act="toReflect">Lanjut ke Refleksi</button></div></section>'};
+};
+
+SCREENS.reflect=function(){
+  return {narr:'Refleksi dan penutup. Apa yang kamu pelajari dari permainan ini? Bagaimana kamu dapat ikut menjaga mangrove Kendawangan?',html:
+  '<section class="panel" aria-labelledby="t6"><div class="lvl-head"><h2 class="sign sm" id="t6">Refleksi dan Penutup</h2></div>'+
+  '<p class="instr">Apa yang kamu pelajari dari permainan ini? Bagaimana kamu dapat ikut menjaga mangrove Kendawangan?</p>'+
+  '<label for="rf" class="vh">Refleksimu</label><textarea id="rf" placeholder="Tuliskan refleksimu di sini ...">'+esc(state.reflect)+'</textarea>'+
+  '<p class="note">Refleksi tidak tersimpan di halaman ini. Salin dan kirimkan kepada gurumu bila diminta.</p>'+
+  '<p class="quote">“Mangrove Kendawangan, sumber belajar nyata untuk masa depan yang lestari.”</p>'+
+  '<div class="row end"><span class="hint" id="cpOk" role="status"></span><button class="btn ghost" type="button" data-act="copyRef">Salin Refleksi</button><button class="btn green" type="button" data-act="finish">Selesai</button></div></section>',
+  after:function(){var t=document.getElementById('rf');t.addEventListener('input',function(){state.reflect=t.value;});}};
+};
+
+SCREENS.bye=function(){
+  return {narr:'Terima kasih sudah bermain. Sampai jumpa, Penjaga Mangrove.',html:
+  '<section class="panel" style="align-items:center;text-align:center" aria-labelledby="t7"><div style="width:130px">'+MASCOT+'</div><h2 class="fbtitle" id="t7">Terima kasih, Penjaga Mangrove!</h2><p>Sampai jumpa di petualangan berikutnya. Kamu boleh menutup halaman ini atau bermain lagi.</p><div class="row"><button class="btn green" type="button" data-act="again">Main Lagi</button></div></section>'};
+};
+
+/* ---------- render & navigasi ---------- */
+function updateHeader(){
+  var top=document.getElementById('top'),hide=state.screen==='open'||state.screen==='bye';
+  top.hidden=hide;
+  document.getElementById('scoreChip').textContent='Skor '+total();
+  document.getElementById('btnMap').hidden=(state.screen==='map'||state.screen==='guide');
+  document.getElementById('btnSpeak').hidden=!synth;
+}
+function render(){
+  var act=document.activeElement,fid=act&&act.dataset?act.dataset.fid:null;
+  var sc=SCREENS[state.screen]();
+  app.innerHTML=sc.html;NARR=sc.narr||'';updateHeader();
+  if(sc.after)sc.after();
+  if(fid){var el=app.querySelector('[data-fid="'+fid+'"]');if(el&&!el.disabled)el.focus({preventScroll:true});}
+}
+function go(s){
+  state.screen=s;render();window.scrollTo(0,0);
+  if(state.opts.voice)speak(NARR);
+}
+function startLevel(n){
+  if(n===1)initL1();else if(n===2)initL2();else if(n===3)initL3();else if(n===4)initL4();
+  go('l'+n);
+}
+
+function finish(n,items,correct,totalN,o){
+  o=o||{};
+  var score=o.score!==undefined?o.score:Math.round(PER*correct/totalN);
+  var pass=correct/totalN>=PASS-1e-9;
+  state.best[n-1]=Math.max(state.best[n-1],score);
+  if(pass)state.passed[n-1]=true;
+  state.fb={n:n,items:items,correct:correct,total:totalN,score:score,pass:pass,lesson:o.lesson||'',tips:o.tips||[],writing:!!o.writing};
+  go('fb');
+}
+
+function sentences(t){return (t.trim().match(/[^.!?\n]+[.!?]*/g)||[]).map(function(s){return s.trim();}).filter(function(s){return /[A-Za-z]/.test(s);});}
+
+function analyze(t){
+  var ss=sentences(t),n=ss.length,low=t.toLowerCase();
+  var groups=[/akar|tunjang/,/abrasi|gelombang|ombak/,/habitat|kepiting|ikan|biota/,/lumpur|pesisir|pantai|payau/,/kendawangan|kalimantan/];
+  var hit=groups.filter(function(g){return g.test(low);}).length;
+  var subj=['saya','aku','kami','kita','menurut saya','menurutku','indah','cantik','bagus','jelek','menyenangkan','seru','keren','sangat','sekali','paling','sebaiknya','seharusnya','menakjubkan','luar biasa'];
+  var found=subj.filter(function(w){return new RegExp('(^|[^a-z])'+w+'([^a-z]|$)').test(low);});
+  var first=n?ss[0].toLowerCase():'',lastS=n?ss[n-1].toLowerCase():'';
+  var struct=n>=3&&/mangrove|bakau/.test(first)&&/perlu|harus|dilestarikan|dijaga|dirawat|oleh karena itu|dengan demikian|jadi|sehingga|kesimpulan|simpulan|mari|ayo/.test(lastS);
+  var manfaat=/manfaat|bermanfaat|mencegah|melindungi|menahan|masyarakat|nelayan|warga|penghasilan/.test(low);
+  var items=[
+    {ok:hit>=2,title:'Memuat informasi faktual',detail:hit>=2?'':'Tambahkan fakta dari data pengamatan, misalnya tentang akar tunjang, abrasi, atau habitat biota laut.'},
+    {ok:found.length===0&&n>0,title:'Menggunakan bahasa yang objektif',detail:found.length?'Hindari kata bernada pendapat atau perasaan: '+found.join(', ')+'.':''},
+    {ok:struct,title:'Struktur teks cukup runtut',detail:struct?'':'Awali dengan pernyataan umum tentang mangrove dan akhiri dengan penutup atau simpulan.'},
+    {ok:n>=3,title:'Memuat minimal 3 kalimat',detail:n>=3?'':'Tulisanmu baru '+n+' kalimat. Tulis minimal 3 kalimat.'}
+  ];
+  var tips=[];
+  if(!manfaat)tips.push('Tambahkan informasi tentang manfaat mangrove bagi masyarakat pesisir Kendawangan.');
+  if(n>5)tips.push('Ringkas tulisanmu menjadi maksimal 5 kalimat.');
+  tips.push('Pengecekan otomatis hanya membaca ciri tulisan. Gurumu tetap dapat menilai isi, ejaan, dan kerapian kalimat.');
+  return {items:items,tips:tips,correct:items.filter(function(i){return i.ok;}).length};
+}
+
+/* ---------- aksi ---------- */
+var ACT={
+  start:function(){state.guideBack='map';go('guide');},
+  goals:function(){openModal('<h2 id="mt">Tujuan Game</h2><p>Setelah bermain, kamu mampu:</p><ul class="facts"><li>mengenali ciri dan objek di ekosistem mangrove;</li><li>membedakan fakta dan opini;</li><li>menyusun struktur teks laporan hasil observasi (pernyataan umum, deskripsi bagian, deskripsi manfaat, penutup);</li><li>menerapkan nilai peduli lingkungan dan gotong royong;</li><li>menulis teks LHO singkat tentang mangrove Kendawangan.</li></ul>');},
+  quit:function(){openModal('<h2 id="mt">Keluar dari game?</h2><p>Skor dan progres pada sesi ini akan dihapus.</p><div class="row"><button class="btn red" type="button" data-act="quitYes">Keluar</button></div>');},
+  quitYes:function(){closeModal();resetAll();go('bye');},
+  toGuide:function(){state.guideBack=(state.screen==='open'||state.screen==='guide')?(state.guideBack||'map'):state.screen;if(state.screen==='open')state.guideBack='open';go('guide');},
+  guideNext:function(){go(state.guideBack==='open'?'open':(state.guideBack&&state.guideBack!=='guide'?state.guideBack:'map'));},
+  toMap:function(){go('map');},
+  speak:function(){speak(NARR);},
+  node:function(d){startLevel(+d.n);},
+  toResult:function(){go('result');},
+  /* L1 */
+  l1img:function(d){var s=state.l1;s.sel=(s.sel===d.id)?null:d.id;render();},
+  l1name:function(d){var s=state.l1;
+    if(s.sel){Object.keys(s.pairs).forEach(function(k){if(s.pairs[k]===d.id)delete s.pairs[k];});s.pairs[s.sel]=d.id;s.sel=null;}
+    else{var k=Object.keys(s.pairs).filter(function(k){return s.pairs[k]===d.id;})[0];if(k)s.sel=k;}
+    render();},
+  l1check:function(){
+    var s=state.l1,c=0,items=s.img.map(function(id,i){
+      var pick=s.pairs[id],ok=pick===id;if(ok)c++;
+      return {ok:ok,title:'Gambar '+(i+1)+': '+L1M[id].name,detail:(ok||!pick?'':'Kamu memilih "'+L1M[pick].name+'". ')+L1M[id].fact};
+    });
+    finish(1,items,c,items.length,{lesson:L1M.akar.fact});},
+  /* L2 */
+  l2pick:function(d){var s=state.l2;if(s.shown)return;s.pick=d.v;render();},
+  l2check:function(){var s=state.l2,it=L2[s.order[s.i]],ok=s.pick===it.t;s.shown=true;
+    s.res.push({ok:ok,title:'“'+it.s+'”',detail:(ok?'Jawabanmu '+s.pick.toUpperCase()+'. ':'Jawabanmu '+s.pick.toUpperCase()+', seharusnya '+it.t.toUpperCase()+'. ')+it.e});
+    live(ok?'Benar':'Belum tepat');render();},
+  l2next:function(){var s=state.l2;
+    if(s.i>=L2.length-1){var c=s.res.filter(function(r){return r.ok;}).length;finish(2,s.res,c,s.res.length,{lesson:'Fakta dapat dibuktikan. Opini memuat penilaian atau perasaan, misalnya kata indah, enak, atau menurut saya.'});}
+    else{s.i++;s.pick=null;s.shown=false;render();window.scrollTo(0,0);if(state.opts.voice)speak(NARR);}},
+  /* L3 */
+  l3chip:function(d){var s=state.l3;s.sel=(s.sel===d.id)?null:d.id;render();},
+  l3slot:function(d){var s=state.l3,k=+d.k;
+    if(s.sel){s.slots[k]=s.sel;s.sel=null;}else if(s.slots[k]){s.slots[k]=null;}
+    render();},
+  l3check:function(){
+    var s=state.l3,c=0,items=STRUCT.map(function(st,k){
+      var id=s.slots[k],ok=L3M[id].slot===k;if(ok)c++;
+      return {ok:ok,title:st.name,detail:(ok?'':'Kalimatmu: “'+L3M[id].t+'”. Kalimat yang tepat: “'+L3BY[k].t+'”. ')+st.tip};
+    });
+    finish(3,items,c,items.length,{lesson:'Teks LHO tersusun atas pernyataan umum, deskripsi bagian, deskripsi manfaat, dan penutup.'});},
+  /* L4 */
+  l4pick:function(d){var s=state.l4;if(s.shown)return;s.sel[d.id]=!s.sel[d.id];render();},
+  l4check:function(){var s=state.l4,rd=s.order[s.r];s.shown=true;
+    rd.forEach(function(o){var on=!!s.sel[o.id],ok=on===o.good;
+      s.res.push({ok:ok,title:o.t,detail:(o.good?'Tindakan yang tepat. ':'Tindakan yang kurang tepat. ')+o.w+(ok?'':(on?' Kamu memilihnya.':' Kamu tidak memilihnya.'))});});
+    render();},
+  l4next:function(){var s=state.l4;
+    if(s.r>=L4.length-1){var c=s.res.filter(function(r){return r.ok;}).length;finish(4,s.res,c,s.res.length,{lesson:'Menjaga mangrove berarti menanam, merawat, dan tidak merusaknya, serta dilakukan bersama-sama dengan semangat gotong royong.'});}
+    else{s.r++;s.shown=false;render();window.scrollTo(0,0);if(state.opts.voice)speak(NARR);}},
+  /* L5 */
+  l5send:function(){var a=analyze(state.text);
+    finish(5,a.items,a.correct,4,{score:a.correct*5,tips:a.tips,writing:true});},
+  /* fb */
+  fbRetry:function(){var n=state.fb.n;if(n===5)go('l5');else startLevel(n);},
+  fbNext:function(){var n=state.fb.n;if(n<5)startLevel(n+1);else go('result');},
+  /* akhir */
+  again:function(){resetAll();go('map');},
+  toReflect:function(){go('reflect');},
+  finish:function(){go('bye');},
+  copyRef:function(){var t=state.reflect||'',ok=document.getElementById('cpOk');
+    function msg(m){if(ok)ok.textContent=m;}
+    if(!t.trim()){msg('Tulis refleksi dulu.');return;}
+    try{navigator.clipboard.writeText(t).then(function(){msg('Tersalin.');},function(){sel();});}catch(e){sel();}
+    function sel(){var x=document.getElementById('rf');if(x){x.focus();x.select();}msg('Teks dipilih. Salin dengan Ctrl+C atau tekan lama.');}},
+  cert:function(){openModal('<h2 id="mt">Sertifikat Penjaga Mangrove</h2><label for="certName"><b>Nama lengkap</b></label><input type="text" id="certName" autocomplete="name" placeholder="Tulis namamu"><div class="row"><button class="btn green" type="button" data-act="certMake">Buat Sertifikat</button></div><div id="certOut"></div>');},
+  certMake:async function(){
+    var nm=(document.getElementById('certName').value||'').trim(),out=document.getElementById('certOut');
+    if(!nm){out.innerHTML='<p class="hint">Isi nama lebih dulu.</p>';return;}
+    out.innerHTML='<p class="hint">Membuat sertifikat ...</p>';
+    var url=await drawCert(nm);
+    out.innerHTML='<img class="cert" alt="Sertifikat Penjaga Mangrove atas nama '+esc(nm)+'" src="'+url+'"><p class="note">Unduhan langsung tidak tersedia di halaman ini. Tekan lama gambar (HP) atau klik kanan (komputer) untuk menyimpan, atau ambil tangkapan layar.</p>';
+  }
+};
+
+function resetAll(){state.best=[0,0,0,0,0];state.passed=[false,false,false,false,false];state.text='';state.reflect='';state.fb=null;}
+
+async function drawCert(name){
+  try{await document.fonts.load('800 80px "Baloo 2"');await document.fonts.load('700 30px "Atkinson Hyperlegible"');}catch(e){}
+  var c=document.createElement('canvas');c.width=1400;c.height=990;var x=c.getContext('2d');
+  x.fillStyle='#f8fcf5';x.fillRect(0,0,1400,990);
+  x.strokeStyle='#8a5726';x.lineWidth=18;x.strokeRect(24,24,1352,942);
+  x.strokeStyle='#2d7a43';x.lineWidth=4;x.strokeRect(56,56,1288,878);
+  var cols=['#256f3f','#2e8b4f','#3fa35c'];
+  for(var i=0;i<16;i++){x.fillStyle=cols[i%3];x.beginPath();x.arc(i*92+20,966,58+(i%2)*10,Math.PI,0);x.fill();}
+  x.textAlign='center';x.fillStyle='#1c5a30';
+  x.font='800 92px "Baloo 2", sans-serif';x.fillText('SERTIFIKAT',700,200);
+  x.fillStyle='#8a5726';x.font='800 40px "Baloo 2", sans-serif';x.fillText('Penjaga Mangrove Kendawangan',700,254);
+  x.fillStyle='#3d5a48';x.font='700 30px "Atkinson Hyperlegible", sans-serif';x.fillText('diberikan kepada',700,340);
+  var size=88;x.fillStyle='#14301f';
+  do{x.font='800 '+size+'px "Baloo 2", sans-serif';size-=4;}while(x.measureText(name).width>1100&&size>32);
+  x.fillText(name,700,440);
+  x.strokeStyle='#cf9a55';x.lineWidth=3;x.beginPath();x.moveTo(250,470);x.lineTo(1150,470);x.stroke();
+  x.fillStyle='#14301f';x.font='700 32px "Atkinson Hyperlegible", sans-serif';
+  x.fillText('telah menyelesaikan petualangan Jelajah Mangrove Digital',700,540);
+  x.fillText('Teks Laporan Hasil Observasi · Bahasa Indonesia Kelas X',700,588);
+  x.fillStyle='#1c5a30';x.font='800 64px "Baloo 2", sans-serif';x.fillText('Skor akhir '+total()+' / 100',700,690);
+  x.fillStyle='#3d5a48';x.font='700 28px "Atkinson Hyperlegible", sans-serif';
+  x.fillText('SMA Negeri 1 Kendawangan · '+new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),700,760);
+  return c.toDataURL('image/png');
+}
+
+/* modal */
+var lastFocus=null;
+function openModal(html){
+  closeModal();lastFocus=document.activeElement;
+  var m=document.createElement('div');m.className='modal';
+  m.innerHTML='<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="mt">'+html+'<div class="row end"><button class="btn ghost" type="button" data-close>Tutup</button></div></div>';
+  document.body.appendChild(m);
+  m.addEventListener('click',function(e){if(e.target===m||e.target.closest('[data-close]'))closeModal();});
+  var f=m.querySelector('input,button');if(f)f.focus();
+}
+function closeModal(){var m=document.querySelector('.modal');if(m){m.remove();if(lastFocus&&lastFocus.focus&&document.contains(lastFocus))lastFocus.focus();}}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+
+/* delegasi */
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  var f=ACT[b.dataset.act];if(f)f(b.dataset,b);
+});
+document.addEventListener('change',function(e){
+  var t=e.target;if(!t.dataset||!t.dataset.opt)return;
+  var k=t.dataset.opt;state.opts[k]=t.checked;
+  var cl=document.documentElement.classList;
+  if(k==='big')cl.toggle('big',t.checked);
+  if(k==='hc')cl.toggle('hc',t.checked);
+  if(k==='dys')cl.toggle('dys',t.checked);
+  if(k==='voice'){if(t.checked)speak('Narasi suara aktif.');else if(synth)try{synth.cancel();}catch(x){}}
+});
+
+/* peta responsif */
+var mq=window.matchMedia('(max-width:640px)');
+function onMq(){if(state.screen==='map')render();}
+if(mq.addEventListener)mq.addEventListener('change',onMq);else if(mq.addListener)mq.addListener(onMq);
+
+document.getElementById('band').innerHTML=bandSVG();
+render();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){try{navigator.serviceWorker.register('./sw.js').catch(function(){});}catch(e){}});}
+</script>
